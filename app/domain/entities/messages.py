@@ -35,6 +35,8 @@ class Chat(BaseEntity):
         new_chat.register_events(
             NewChatCreated(
                 chat_oid=new_chat.oid,
-                title=new_chat.title,
+                chat_title=new_chat.title,
             )
         )
+
+        return new_chat
