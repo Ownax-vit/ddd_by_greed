@@ -9,16 +9,12 @@ T = TypeVar("T", bound=Any)
 @dataclass(frozen=True)
 class BaseValueObject(ABC, Generic[T]):
     value: T
- 
+
     def __post_init__(self):
         self.validate()
 
     @abstractmethod
-    def validate(self):
-        ...
+    def validate(self): ...
 
     @abstractmethod
-    def as_generic_type(self):
-        ...
-
-
+    def as_generic_type(self) -> T: ...
