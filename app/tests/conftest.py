@@ -1,18 +1,24 @@
+from dishka import AsyncContainer
 from pytest import fixture
+import pytest_asyncio
 
-from infra.repositories.messages import BaseChatRepository, MemoryChatRepository
-from logic.init import init_mediator
+from infra.repositories.messages import BaseChatRepository
 from logic.mediator import Mediator
+from tests.fixtures import init_dummy_container
 
 
-@fixture(scope="package")
-def chat_repository() -> MemoryChatRepository:
-    return MemoryChatRepository()
+@fixture(scope="session")
+def container() -> AsyncContainer:
+    return init_dummy_container()
 
 
-@fixture(scope="package")
-def mediator(chat_repository: BaseChatRepository) -> Mediator:
-    mediator = Mediator()
-    init_mediator(mediator=mediator, chat_repository=chat_repository)
+@pytest_asyncio.fixture(scope="package", name="chat_repository")
+async def repo(container: AsyncContainer) -> BaseChatRepository:
+    repo: BaseChatRepository = await container.get(BaseChatRepository)
+    return repo
 
+
+@pytest_asyncio.fixture(scope="package")
+async def mediator(container: AsyncContainer) -> Mediator:
+    mediator: Mediator = await container.get(Mediator)
     return mediator
