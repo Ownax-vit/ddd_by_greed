@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from dishka import AsyncContainer
 
-from application.api.messages.schemas import CreateChatResponseSchema
+from application.api.messages.schemas import CreateChatRequestSchema, CreateChatResponseSchema
 from application.api.schemas import ErrorSchema
 from domain.exceptions.base import ApplicationException
 from logic.commands.messages import CreateChatCommand
@@ -20,13 +20,13 @@ router = APIRouter(tags=["Chat"])
     },
 )
 async def create_chat_handler(
-    schema: CreateChatResponseSchema, container: AsyncContainer = Depends(get_container)
-):
+    schema: CreateChatRequestSchema, container: AsyncContainer = Depends(get_container)
+) -> CreateChatResponseSchema:
     mediator: Mediator = await container.get(Mediator)
 
     try:
         chat, *_ = await mediator.handle_command(
-            CreateChatCommand(title="test title")
+            CreateChatCommand(title=schema.title)
         )
     except ApplicationException as exception:
         raise HTTPException(
@@ -34,4 +34,4 @@ async def create_chat_handler(
             detail={"error": exception.message},
         )
 
-    return chat
+    return CreateChatResponseSchema.from_entity(chat=chat)

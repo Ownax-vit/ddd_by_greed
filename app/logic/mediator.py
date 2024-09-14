@@ -23,8 +23,24 @@ class Mediator:
     def register_event(self, event: ET, event_handlers: Iterable[EventHandler[ET, ER]]):
         self.events_map[event].extend(event_handlers)
 
-    def register_command(self, command: CT, event_handlers: Iterable[CommandHandler[CT, CR]]):
+    def register_command(
+        self, command: CT, event_handlers: Iterable[CommandHandler[CT, CR]]
+    ):
         self.commands_map[command].extend(event_handlers)
+
+    async def publish(self, events: Iterable[BaseEvent]) -> Iterable[ER]:
+        event_type = events.__class__
+        handlers = self.events_map.get(event_type)
+
+        if not handlers:
+            raise EventHandlerNotRegisteredException(event_type=event_type)
+
+        result = []
+
+        for event in events:
+            result.extend(await handler.handle(event) for handler in handlers)
+
+        return result
 
     async def handle_event(self, event: BaseEvent) -> Iterable[ER]:
         event_type = event.__class__
