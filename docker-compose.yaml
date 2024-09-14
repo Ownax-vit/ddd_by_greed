@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  main-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ddd-ije
+    ports:
+      - "$API_PORT:8000"
+    volumes:
+      - ./app:/app/
+    env_file:
+      - .env
+
