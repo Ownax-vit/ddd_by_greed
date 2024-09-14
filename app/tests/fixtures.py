@@ -7,4 +7,3 @@ def init_dummy_container() -> AsyncContainer:
     contaner = _init_container()
 
     return contaner
-

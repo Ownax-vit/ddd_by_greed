@@ -42,15 +42,6 @@ class Mediator:
 
         return result
 
-    async def handle_event(self, event: BaseEvent) -> Iterable[ER]:
-        event_type = event.__class__
-        handlers = self.events_map.get(event_type)
-
-        if not handlers:
-            raise EventHandlerNotRegisteredException(event_type)
-
-        return [await handler.handle(event) for handler in handlers]
-
     async def handle_command(self, command: CommandHandler) -> Iterable[CR]:
         command_type = command.__class__
         handlers = self.commands_map.get(command_type)
