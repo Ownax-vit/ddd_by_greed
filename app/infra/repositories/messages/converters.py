@@ -1,4 +1,5 @@
 from typing import Any, Mapping
+from domain.values.messages import Text, Title
 from domain.entities.messages import Chat, Message
 
 
@@ -17,7 +18,7 @@ def convert_entity_to_document(chat: Chat) -> dict:
 
 def convert_message_to_entity(message: Mapping[str, Any]) -> Message:
     return Message(
-        text=message["text"],
+        text=Text(message["text"]),
         oid=message["oid"],
         created_at=message["created_at"],
     )
@@ -25,7 +26,7 @@ def convert_message_to_entity(message: Mapping[str, Any]) -> Message:
 
 def convert_chat_document_to_entity(chat: Mapping[str, Any]) -> Chat:
     return Chat(
-        title=chat["title"],
+        title=Title(chat["title"]),
         oid=chat["oid"],
         created_at=chat["created_at"],
         messages={convert_message_to_entity(message) for message in chat["messages"]},

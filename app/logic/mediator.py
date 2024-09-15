@@ -4,6 +4,7 @@ from typing import Iterable
 
 from domain.events.base import BaseEvent
 from logic.commands.base import CR, CT, CommandHandler
+from logic.queries.base import QR, QT, BaseQuery, BaseQueryHandler
 from logic.events.base import ER, ET, EventHandler
 from logic.exceptions.mediator import (
     CommandHandlerNotRegisteredException,
@@ -19,6 +20,7 @@ class Mediator:
     commands_map: dict[CT, CommandHandler] = field(
         default_factory=lambda: defaultdict(list), kw_only=True
     )
+    queries_map: dict[QT, BaseQueryHandler] = field(default_factory=dict, kw_only=True)
 
     def register_event(self, event: ET, event_handlers: Iterable[EventHandler[ET, ER]]):
         self.events_map[event].extend(event_handlers)
@@ -28,7 +30,12 @@ class Mediator:
     ):
         self.commands_map[command].extend(event_handlers)
 
+    def register_query(self, query: QT, query_handler: BaseQueryHandler[QT, QR]):
+        self.queries_map[query] = query_handler
+
     async def publish(self, events: Iterable[BaseEvent]) -> Iterable[ER]:
+        """Обработчик эвентов"""
+
         event_type = events.__class__
         handlers = self.events_map.get(event_type)
 
@@ -50,3 +57,6 @@ class Mediator:
             raise CommandHandlerNotRegisteredException(command_type)
 
         return [await handler.handle(command) for handler in handlers]
+
+    async def handle_query(self, query: BaseQuery) -> QR:
+        return await self.queries_map[query.__class__].handle(query=query)

@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from dishka import AsyncContainer
 
+from logic.queries.messages import GetChatDetailQuery
 from application.api.messages.schemas import (
+    ChatDetailSchema,
     CreateChatRequestSchema,
     CreateChatResponseSchema,
     CreateMessageRequestSchema,
@@ -65,3 +67,27 @@ async def create_message_handler(
         )
 
     return CreateMessageResponseSchema.from_entity(message=message)
+
+
+@router.get(
+    "/{chat_oid}",
+    responses={
+        status.HTTP_200_OK: {"model": ChatDetailSchema},
+        status.HTTP_400_BAD_REQUEST: {"model": ErrorSchema},
+    },
+)
+async def receive_chat_handler(
+    chat_oid: str,
+    container: AsyncContainer = Depends(get_container),
+) -> ChatDetailSchema:
+    mediator: Mediator = await container.get(Mediator)
+
+    try:
+        chat = await mediator.handle_query(GetChatDetailQuery(chat_oid=chat_oid))
+    except ApplicationException as exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": exception.message},
+        )
+
+    return ChatDetailSchema.from_entity(chat=chat)

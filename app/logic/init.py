@@ -3,6 +3,7 @@ from dishka import Provider, Scope, AsyncContainer, make_async_container
 
 from motor.motor_asyncio import AsyncIOMotorClient
 
+from logic.queries.messages import GetChatDetailQuery, GetChatDetailQueryHandler
 from infra.repositories.messages.base import BaseChatsRepository, BaseMessagesRepository
 from infra.repositories.messages.mongo import (
     MongoChatsRepository,
@@ -63,6 +64,13 @@ def _init_container() -> AsyncContainer:
                     messages_repository=message_repository,
                 )
             ],
+        )
+        mediator.register_query(
+            GetChatDetailQuery,
+            GetChatDetailQueryHandler(
+                chats_repository=chat_repository,
+                messages_repository=message_repository,
+            ),
         )
         return mediator
 
