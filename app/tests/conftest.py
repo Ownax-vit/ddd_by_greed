@@ -2,7 +2,7 @@ from dishka import AsyncContainer
 from pytest import fixture
 import pytest_asyncio
 
-from infra.repositories.messages.base import BaseChatRepository
+from infra.repositories.messages.base import BaseChatsRepository
 from logic.mediator import Mediator
 from tests.fixtures import init_dummy_container
 
@@ -13,8 +13,8 @@ def container() -> AsyncContainer:
 
 
 @pytest_asyncio.fixture(name="chat_repository")
-async def repo(container: AsyncContainer) -> BaseChatRepository:
-    repo: BaseChatRepository = await container.get(BaseChatRepository)
+async def repo(container: AsyncContainer) -> BaseChatsRepository:
+    repo: BaseChatsRepository = await container.get(BaseChatsRepository)
     return repo
 
 
