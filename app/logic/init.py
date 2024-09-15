@@ -17,7 +17,7 @@ def get_container() -> AsyncContainer:
 
 def _init_container() -> AsyncContainer:
     def get_repo(config: Config) -> BaseChatRepository:
-        client = AsyncIOMotorClient(host=config.mongodb_connection_uri)
+        client = AsyncIOMotorClient(host=config.mongodb_connection_uri, serverSelectionTimeoutMS=1000)
         return MongoChatRepository(
             mongo_db_client=client,
             mongo_db_db_name=config.mongodb_chat_database,
