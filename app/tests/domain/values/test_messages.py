@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import uuid4
 
 import pytest
 
@@ -10,7 +11,7 @@ from domain.entities.messages import Chat, Message
 
 def test_create_message_short_text():
     text = Text("test text")
-    message = Message(text=text)
+    message = Message(text=text, chat_oid=str(uuid4()))
 
     assert message.text == text
     assert message.created_at.date() == datetime.today().date()
@@ -18,7 +19,7 @@ def test_create_message_short_text():
 
 def test_create_message_text_too_long():
     text = Text("a" * 400)
-    message = Message(text=text)
+    message = Message(text=text, chat_oid=str(uuid4()))
 
     assert message.text == text
     assert message.created_at.date() == datetime.today().date()
@@ -40,7 +41,7 @@ def test_create_chat_title_too_long():
 
 def test_add_chat_to_message():
     text = Text("test text")
-    message = Message(text=text)
+    message = Message(text=text, chat_oid=str(uuid4()))
 
     title = Title(value="title")
     chat = Chat(title=title)
@@ -53,7 +54,7 @@ def test_add_chat_to_message():
 
 def test_new_message_events():
     text = Text("hello ")
-    message = Message(text=text)
+    message = Message(text=text, chat_oid=str(uuid4()))
 
     title = Title(value="title")
     chat = Chat(title=title)

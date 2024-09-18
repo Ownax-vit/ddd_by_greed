@@ -11,7 +11,6 @@ def convert_entity_to_document(chat: Chat) -> dict:
     return {
         "oid": chat.oid,
         "title": chat.title.as_generic_type(),
-        "messages": [convert_message_to_document(message) for message in chat.messages],
         "created_at": chat.created_at,
     }
 

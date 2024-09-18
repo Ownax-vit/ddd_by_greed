@@ -8,7 +8,7 @@ from domain.values.messages import Text, Title
 @dataclass(eq=False)
 class Message(BaseEntity):
     _hash_ = BaseEntity.__hash__
-
+    chat_oid: str
     text: Text
 
 

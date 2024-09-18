@@ -45,7 +45,7 @@ def _init_container() -> AsyncContainer:
         return MongoMessagesRepository(
             mongo_db_client=mongo_client,
             mongo_db_db_name=config.mongodb_chat_database,
-            mongo_db_collection_name=config.mongodb_chat_collection,
+            mongo_db_collection_name=config.mongodb_messages_collection,
         )
 
     def get_mediator(
