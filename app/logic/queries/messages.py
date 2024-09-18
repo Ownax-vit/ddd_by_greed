@@ -1,6 +1,8 @@
 from dataclasses import dataclass
+from typing import Iterable
 
-from domain.entities.messages import Chat
+from infra.repositories.messages.filters import GetMessagesFilter
+from domain.entities.messages import Chat, Message
 from infra.repositories.messages.base import (
     BaseChatsRepository,
     BaseMessagesRepository,
@@ -15,6 +17,12 @@ class GetChatDetailQuery(BaseQuery):
 
 
 @dataclass(frozen=True)
+class GetMessagesQuery(BaseQuery):
+    chat_oid: str
+    filters: GetMessagesFilter  # TODO filters in domain?
+
+
+@dataclass(frozen=True)
 class GetChatDetailQueryHandler(BaseQueryHandler):
     chats_repository: BaseChatsRepository
     messages_repository: BaseMessagesRepository
@@ -25,3 +33,19 @@ class GetChatDetailQueryHandler(BaseQueryHandler):
         if not chat:
             raise ChatNotFoundException(chat_oid=query.chat_oid)
         return chat
+
+
+@dataclass(frozen=True)
+class GetMessagesQueryHandler(BaseQueryHandler):
+    messages_repository: BaseMessagesRepository
+    chats_repository: BaseChatsRepository
+
+    async def handle(self, query: GetMessagesQuery) -> tuple[Iterable[Message], int]:
+        chat = await self.chats_repository.get_chat_by_oid(oid=query.chat_oid)
+
+        if not chat:
+            raise ChatNotFoundException(chat_oid=query.chat_oid)
+
+        return await self.messages_repository.get_messages(
+            chat_oid=query.chat_oid, filters=query.filters
+        )

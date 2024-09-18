@@ -1,13 +1,16 @@
 from dataclasses import dataclass
+from typing import Iterable
 
 from motor.motor_asyncio import AsyncIOMotorClient
 
+from infra.repositories.messages.filters import GetMessagesFilter
 from domain.entities.messages import Chat, Message
 from infra.repositories.messages.base import BaseChatsRepository, BaseMessagesRepository
 from infra.repositories.messages.converters import (
     convert_chat_document_to_entity,
     convert_entity_to_document,
     convert_message_to_document,
+    convert_message_to_entity,
 )
 
 
@@ -47,3 +50,17 @@ class MongoMessagesRepository(BaseMessagesRepository, BaseMongoRepository):
         await self._collection.insert_one(
             document=convert_message_to_document(message=message)
         )
+
+    async def get_messages(
+        self, chat_oid: str, filters: GetMessagesFilter
+    ) -> tuple[Iterable[Message], int]:
+        find = {'chat_oid': chat_oid}
+        cursor = self._collection.find(find).skip(filters.offset).limit(filters.limit)
+
+        messages = [
+            convert_message_to_entity(message=message_document)
+            async for message_document in cursor
+        ]
+        count = await self._collection.count_documents(filter=find)
+
+        return messages, count

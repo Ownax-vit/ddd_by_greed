@@ -1,13 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from dishka import AsyncContainer
 
-from logic.queries.messages import GetChatDetailQuery
+from infra.repositories.messages.filters import GetMessagesFilter
+from logic.queries.messages import GetChatDetailQuery, GetMessagesQuery
 from application.api.messages.schemas import (
     ChatDetailSchema,
     CreateChatRequestSchema,
     CreateChatResponseSchema,
     CreateMessageRequestSchema,
     CreateMessageResponseSchema,
+    GetMessagesQueryResponseSchema,
+    MessageDetailSchema,
 )
 from application.api.schemas import ErrorSchema
 from domain.exceptions.base import ApplicationException
@@ -91,3 +94,38 @@ async def receive_chat_handler(
         )
 
     return ChatDetailSchema.from_entity(chat=chat)
+
+
+@router.get(
+    "/{chat_oid}/messages/",
+    responses={
+        status.HTTP_200_OK: {"model": GetMessagesQueryResponseSchema},
+        status.HTTP_400_BAD_REQUEST: {"model": ErrorSchema},
+    },
+)
+async def receive_messages_handler(
+    chat_oid: str,
+    offset: int = Query(),
+    limit: int = Query(),
+    container: AsyncContainer = Depends(get_container),
+) -> GetMessagesQueryResponseSchema:
+    mediator: Mediator = await container.get(Mediator)
+
+    try:
+        messages, count = await mediator.handle_query(
+            GetMessagesQuery(
+                chat_oid=chat_oid, filters=GetMessagesFilter(limit=limit, offset=offset)
+            )
+        )
+    except ApplicationException as exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": exception.message},
+        )
+
+    return GetMessagesQueryResponseSchema(
+        count=count,
+        items=[MessageDetailSchema.from_entity(msg) for msg in messages],
+        limit=limit,
+        offset=offset,
+    )

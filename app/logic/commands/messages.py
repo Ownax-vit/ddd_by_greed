@@ -49,7 +49,7 @@ class CreateMessageCommandHandler(CommandHandler[CreateChatCommand, Chat]):
             raise ChatNotFoundException(command.chat_oid)
 
         message = Message(
-            chat_oid=chat.oid, text=Text(command.text), oid=command.chat_oid
+            chat_oid=chat.oid, text=Text(command.text)
         )
         await self.messages_repository.add_message(message=message)
         chat.add_message(message=message)
