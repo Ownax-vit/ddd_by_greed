@@ -38,3 +38,7 @@ async def test_chat_command_title_exists(
         chat, *_ = await mediator.handle_command(
             CreateChatCommand(title=title_text),
         )
+
+
+# TODO tests on add message and receive
+

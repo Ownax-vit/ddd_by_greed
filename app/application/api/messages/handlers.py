@@ -97,7 +97,7 @@ async def receive_chat_handler(
 
 
 @router.get(
-    "/{chat_oid}/messages/",
+    "/{chat_oid}/messages",
     responses={
         status.HTTP_200_OK: {"model": GetMessagesQueryResponseSchema},
         status.HTTP_400_BAD_REQUEST: {"model": ErrorSchema},
